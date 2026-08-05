@@ -32,7 +32,9 @@ def merge_all_datasets() -> pd.DataFrame:
     logger.info("Merged with EPSS (%d rows)", len(merged))
 
     # Step 3: Left join with KEV on cve_id
-    merged = merged.merge(kev_df[["cve_id", "kev_status", "kev_vendor"]], on="cve_id", how="left")
+    merged = merged.merge(
+        kev_df[["cve_id", "kev_status", "kev_vendor"]], on="cve_id", how="left"
+    )
     logger.info("Merged with CISA KEV (%d rows)", len(merged))
 
     # Step 4: Handle missing values
@@ -41,7 +43,9 @@ def merge_all_datasets() -> pd.DataFrame:
     merged["kev_status"] = merged["kev_status"].fillna(0).astype(int)
     merged["kev_vendor"] = merged["kev_vendor"].fillna("Unknown")
 
-    logger.info("Final merged dataset: %d rows, %d columns", len(merged), len(merged.columns))
+    logger.info(
+        "Final merged dataset: %d rows, %d columns", len(merged), len(merged.columns)
+    )
 
     # Save to disk
     MERGED_DIR.mkdir(parents=True, exist_ok=True)

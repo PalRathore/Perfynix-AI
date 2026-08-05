@@ -5,14 +5,25 @@ Generates publication-quality charts and figures for the IEEE/Springer conferenc
 
 import logging
 
-import matplotlib.pyplot as plt
+import matplotlib
 import pandas as pd
 import seaborn as sns
 
-from .config import PROCESSED_DIR, RESULTS_DIR, TARGET_COLUMN, TRAINING_FEATURES
+# Force headless matplotlib backend
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+from .config import (
+    PROCESSED_DIR,
+    RESULTS_DIR,
+    TARGET_COLUMN,
+    TRAINING_FEATURES,
+)
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Set publication style
 sns.set_theme(style="whitegrid", palette="muted")
@@ -39,7 +50,11 @@ def generate_eda_figures(df: pd.DataFrame | None = None) -> list[str]:
     # Figure 1: CVSS Score Distribution
     fig, ax = plt.subplots(figsize=(8, 5))
     sns.histplot(df["cvss_score"], kde=True, bins=20, color="#1f77b4", ax=ax)
-    ax.set_title("Distribution of CVSS Base Scores (NVD 2023-2026)", fontsize=12, fontweight="bold")
+    ax.set_title(
+        "Distribution of CVSS Base Scores (NVD 2023-2026)",
+        fontsize=12,
+        fontweight="bold",
+    )
     ax.set_xlabel("CVSS v3 Base Score (0.0 - 10.0)")
     ax.set_ylabel("Vulnerability Count")
     plt.tight_layout()
@@ -50,8 +65,19 @@ def generate_eda_figures(df: pd.DataFrame | None = None) -> list[str]:
 
     # Figure 2: EPSS Exploit Probability Distribution
     fig, ax = plt.subplots(figsize=(8, 5))
-    sns.histplot(df["epss_score"], kde=True, bins=30, color="#ff7f0e", log_scale=(False, True), ax=ax)
-    ax.set_title("Distribution of EPSS Exploit Probabilities (Log Scale)", fontsize=12, fontweight="bold")
+    sns.histplot(
+        df["epss_score"],
+        kde=True,
+        bins=30,
+        color="#ff7f0e",
+        log_scale=(False, True),
+        ax=ax,
+    )
+    ax.set_title(
+        "Distribution of EPSS Exploit Probabilities (Log Scale)",
+        fontsize=12,
+        fontweight="bold",
+    )
     ax.set_xlabel("EPSS Score (0.0 - 1.0)")
     ax.set_ylabel("Vulnerability Count (Log Scale)")
     plt.tight_layout()
@@ -66,8 +92,18 @@ def generate_eda_figures(df: pd.DataFrame | None = None) -> list[str]:
     class_counts = df[TARGET_COLUMN].value_counts().rename(index=label_map).sort_index()
     palette = ["#2ca02c", "#1f77b4", "#ff7f0e", "#d62728"]
 
-    bars = ax.bar(class_counts.index, class_counts.values, color=palette, edgecolor="black", linewidth=0.8)
-    ax.set_title("Target Label Distribution (Remediation Priority)", fontsize=12, fontweight="bold")
+    bars = ax.bar(
+        class_counts.index,
+        class_counts.values,
+        color=palette,
+        edgecolor="black",
+        linewidth=0.8,
+    )
+    ax.set_title(
+        "Target Label Distribution (Remediation Priority)",
+        fontsize=12,
+        fontweight="bold",
+    )
     ax.set_xlabel("Priority Class")
     ax.set_ylabel("Count")
 
@@ -94,15 +130,30 @@ def generate_eda_figures(df: pd.DataFrame | None = None) -> list[str]:
     # Figure 4: 15-Feature Correlation Heatmap
     fig, ax = plt.subplots(figsize=(12, 10))
     corr = df[TRAINING_FEATURES].corr()
-    sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", cbar=True, ax=ax, linewidths=0.5, annot_kws={"size": 8})
-    ax.set_title("15-Feature Correlation Matrix (Flaw 1 Fix)", fontsize=12, fontweight="bold")
+    sns.heatmap(
+        corr,
+        annot=True,
+        fmt=".2f",
+        cmap="coolwarm",
+        cbar=True,
+        ax=ax,
+        linewidths=0.5,
+        annot_kws={"size": 8},
+    )
+    ax.set_title(
+        "15-Feature Correlation Matrix (Flaw 1 Fix)", fontsize=12, fontweight="bold"
+    )
     plt.tight_layout()
     p4 = str(RESULTS_DIR / "correlation_heatmap.png")
     fig.savefig(p4, dpi=300)
     plt.close(fig)
     generated_files.append(p4)
 
-    logger.info("Successfully generated %d publication figures in: %s", len(generated_files), RESULTS_DIR)
+    logger.info(
+        "Successfully generated %d publication figures in: %s",
+        len(generated_files),
+        RESULTS_DIR,
+    )
     return generated_files
 
 

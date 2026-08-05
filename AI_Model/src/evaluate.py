@@ -4,6 +4,7 @@ Generates 4x4 multi-class confusion matrices, ROC curves, and metrics comparison
 """
 
 import logging
+from pathlib import Path
 
 import joblib
 import matplotlib.pyplot as plt
@@ -24,7 +25,9 @@ from sklearn.preprocessing import label_binarize
 from .config import MODELS_DIR, PROCESSED_DIR, RESULTS_DIR
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Set plot style
 sns.set_theme(style="whitegrid")
@@ -34,16 +37,25 @@ plt.rcParams.update({"font.family": "sans-serif", "font.size": 10})
 def evaluate_models(
     X_test: pd.DataFrame | None = None,
     y_test: pd.Series | None = None,
+    output_dir: Path | None = None,
 ) -> pd.DataFrame:
     """Evaluate Random Forest and XGBoost models on holdout test set (27,957 samples).
 
     Args:
         X_test: Test features. If None, loads from X_test.csv.
         y_test: Test labels. If None, loads from y_test.csv.
+        output_dir: Optional custom output directory (e.g. for mock unit tests). Default is RESULTS_DIR.
 
     Returns:
         DataFrame containing metrics comparison table.
     """
+    if output_dir is None:
+        target_dir = RESULTS_DIR
+    else:
+        target_dir = Path(output_dir)
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+
     if X_test is None or y_test is None:
         x_path = PROCESSED_DIR / "X_test.csv"
         y_path = PROCESSED_DIR / "y_test.csv"
@@ -59,8 +71,6 @@ def evaluate_models(
     xgb_model = joblib.load(xgb_path)
 
     class_names = ["LOW (0)", "MEDIUM (1)", "HIGH (2)", "CRITICAL (3)"]
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
     metrics_list = []
 
     for name, model in [("Random Forest", rf_model), ("XGBoost", xgb_model)]:
@@ -71,7 +81,9 @@ def evaluate_models(
         rec = recall_score(y_test, y_pred, average="macro", zero_division=0)
         f1 = f1_score(y_test, y_pred, average="macro", zero_division=0)
 
-        report = classification_report(y_test, y_pred, target_names=class_names, zero_division=0)
+        report = classification_report(
+            y_test, y_pred, target_names=class_names, zero_division=0
+        )
         logger.info("=== %s Test Results ===", name)
         logger.info("  Accuracy:  %.4f", acc)
         logger.info("  Precision: %.4f", prec)
@@ -92,20 +104,42 @@ def evaluate_models(
         # Generate 4x4 Confusion Matrix Heatmap
         cm = confusion_matrix(y_test, y_pred)
         fig, ax = plt.subplots(figsize=(7, 6))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names, ax=ax)
-        ax.set_title(f"{name} — 4x4 Multi-Class Confusion Matrix", fontsize=12, fontweight="bold")
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt="d",
+            cmap="Blues",
+            xticklabels=class_names,
+            yticklabels=class_names,
+            ax=ax,
+        )
+        ax.set_title(
+            f"{name} — 4x4 Multi-Class Confusion Matrix", fontsize=12, fontweight="bold"
+        )
         ax.set_xlabel("Predicted Priority Class")
         ax.set_ylabel("Actual Priority Class")
         plt.tight_layout()
 
-        filename = "confusion_matrix_rf.png" if name == "Random Forest" else "confusion_matrix_xgb.png"
-        fig.savefig(RESULTS_DIR / filename, dpi=300)
+        filename = (
+            "confusion_matrix_rf.png"
+            if name == "Random Forest"
+            else "confusion_matrix_xgb.png"
+        )
+        fig.savefig(target_dir / filename, dpi=300)
         plt.close(fig)
 
     # Save metrics comparison table
     metrics_df = pd.DataFrame(metrics_list)
-    metrics_csv = RESULTS_DIR / "metrics_comparison.csv"
+    metrics_csv = target_dir / "metrics_summary.csv"
     metrics_df.to_csv(metrics_csv, index=False)
+    # Also save to metrics_comparison.csv if accessible
+    try:
+        metrics_df.to_csv(target_dir / "metrics_comparison.csv", index=False)
+    except PermissionError:
+        logger.warning(
+            "metrics_comparison.csv is locked by another process; saved to metrics_summary.csv"
+        )
+
     logger.info("Saved metrics comparison table to: %s", metrics_csv)
 
     # Multi-class ROC Curve Plot for Random Forest
@@ -117,17 +151,25 @@ def evaluate_models(
     for i, color in zip(range(4), colors):
         fpr, tpr, _ = roc_curve(y_test_bin[:, i], y_score_rf[:, i])
         roc_auc = auc(fpr, tpr)
-        ax.plot(fpr, tpr, color=color, lw=2, label=f"Class {class_names[i]} (AUC = {roc_auc:.3f})")
+        ax.plot(
+            fpr,
+            tpr,
+            color=color,
+            lw=2,
+            label=f"Class {class_names[i]} (AUC = {roc_auc:.3f})",
+        )
 
     ax.plot([0, 1], [0, 1], "k--", lw=1.5)
     ax.set_xlim([0.0, 1.0])
     ax.set_ylim([0.0, 1.05])
     ax.set_xlabel("False Positive Rate")
     ax.set_ylabel("True Positive Rate")
-    ax.set_title("Multi-Class ROC Curves (Random Forest)", fontsize=12, fontweight="bold")
+    ax.set_title(
+        "Multi-Class ROC Curves (Random Forest)", fontsize=12, fontweight="bold"
+    )
     ax.legend(loc="lower right")
     plt.tight_layout()
-    fig.savefig(RESULTS_DIR / "roc_curves.png", dpi=300)
+    fig.savefig(target_dir / "roc_curves.png", dpi=300)
     plt.close(fig)
 
     return metrics_df

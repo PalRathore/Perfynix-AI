@@ -49,4 +49,7 @@ def test_merge_logic_mock():
     assert "kev_status" in merged.columns
     assert merged.loc[merged["cve_id"] == "CVE-2021-44228", "kev_status"].values[0] == 1
     assert merged.loc[merged["cve_id"] == "CVE-2023-34362", "kev_status"].values[0] == 0
-    assert merged.loc[merged["cve_id"] == "CVE-2023-34362", "epss_score"].values[0] == 0.9420
+    assert (
+        merged.loc[merged["cve_id"] == "CVE-2023-34362", "epss_score"].values[0]
+        == 0.9420
+    )

@@ -9,9 +9,24 @@ def test_build_cwe_threat_index_mock():
     """Test CWE threat index computation with mock data."""
     mock_df = pd.DataFrame(
         [
-            {"cwe_id": "CWE-89", "cvss_score": 9.8, "epss_score": 0.90, "kev_status": 1},
-            {"cwe_id": "CWE-89", "cvss_score": 8.1, "epss_score": 0.38, "kev_status": 0},
-            {"cwe_id": "CWE-79", "cvss_score": 6.1, "epss_score": 0.12, "kev_status": 0},
+            {
+                "cwe_id": "CWE-89",
+                "cvss_score": 9.8,
+                "epss_score": 0.90,
+                "kev_status": 1,
+            },
+            {
+                "cwe_id": "CWE-89",
+                "cvss_score": 8.1,
+                "epss_score": 0.38,
+                "kev_status": 0,
+            },
+            {
+                "cwe_id": "CWE-79",
+                "cvss_score": 6.1,
+                "epss_score": 0.12,
+                "kev_status": 0,
+            },
         ]
     )
 

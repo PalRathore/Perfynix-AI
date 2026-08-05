@@ -8,7 +8,9 @@ import pandas as pd
 from .config import MERGED_DIR, MODELS_DIR
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def build_cwe_threat_index(df: pd.DataFrame | None = None) -> dict[str, dict]:
@@ -25,7 +27,9 @@ def build_cwe_threat_index(df: pd.DataFrame | None = None) -> dict[str, dict]:
         logger.info("Loading merged dataset from: %s", merged_path)
         df = pd.read_csv(merged_path)
 
-    logger.info("Building Threat Intelligence Index for %d total CVE records...", len(df))
+    logger.info(
+        "Building Threat Intelligence Index for %d total CVE records...", len(df)
+    )
 
     index_dict = {}
     grouped = df.groupby("cwe_id")
@@ -44,7 +48,9 @@ def build_cwe_threat_index(df: pd.DataFrame | None = None) -> dict[str, dict]:
         cvss_norm = avg_cvss / 10.0
 
         # Composite Risk Weight formula (0.0 to 1.0)
-        composite_risk_weight = float(0.40 * cvss_norm + 0.35 * avg_epss + 0.25 * kev_rate)
+        composite_risk_weight = float(
+            0.40 * cvss_norm + 0.35 * avg_epss + 0.25 * kev_rate
+        )
 
         index_dict[cwe_id] = {
             "cwe_id": cwe_id,
@@ -61,7 +67,11 @@ def build_cwe_threat_index(df: pd.DataFrame | None = None) -> dict[str, dict]:
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(index_dict, f, indent=2)
 
-    logger.info("Successfully built Threat Intelligence Index with %d CWE categories: %s", len(index_dict), output_path)
+    logger.info(
+        "Successfully built Threat Intelligence Index with %d CWE categories: %s",
+        len(index_dict),
+        output_path,
+    )
     return index_dict
 
 

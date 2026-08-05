@@ -3,15 +3,21 @@
 import logging
 
 import joblib
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import pandas as pd
 import shap
 
+# Force headless matplotlib backend to prevent Tkinter TclError in headless test runs
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 from .config import MODELS_DIR, PROCESSED_DIR, RESULTS_DIR, TRAINING_FEATURES
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def generate_shap_analysis(
@@ -50,7 +56,7 @@ def generate_shap_analysis(
     generated_files = []
 
     # 1. SHAP Feature Importance Summary Bar Plot
-    fig, ax = plt.subplots(figsize=(10, 7))
+    _fig, _ax = plt.subplots(figsize=(10, 7))
     if isinstance(shap_values, list):
         shap.summary_plot(
             shap_values,
@@ -61,9 +67,20 @@ def generate_shap_analysis(
             class_names=["LOW", "MEDIUM", "HIGH", "CRITICAL"],
         )
     else:
-        shap.summary_plot(shap_values, X_sample, feature_names=TRAINING_FEATURES, plot_type="bar", show=False)
+        shap.summary_plot(
+            shap_values,
+            X_sample,
+            feature_names=TRAINING_FEATURES,
+            plot_type="bar",
+            show=False,
+        )
 
-    plt.title("SHAP Global Feature Importance (Random Forest)", fontsize=12, fontweight="bold", pad=15)
+    plt.title(
+        "SHAP Global Feature Importance (Random Forest)",
+        fontsize=12,
+        fontweight="bold",
+        pad=15,
+    )
     plt.tight_layout()
     p1 = str(RESULTS_DIR / "shap_feature_importance.png")
     plt.savefig(p1, dpi=300, bbox_inches="tight")
@@ -71,7 +88,7 @@ def generate_shap_analysis(
     generated_files.append(p1)
 
     # 2. SHAP Beeswarm Summary Plot for Critical Class (Class 3)
-    fig, ax = plt.subplots(figsize=(10, 7))
+    _fig2, _ax2 = plt.subplots(figsize=(10, 7))
     if isinstance(shap_values, list):
         shap_vals_class = shap_values[3]  # Class 3 (CRITICAL)
     elif len(np.shape(shap_values)) == 3:
@@ -79,8 +96,15 @@ def generate_shap_analysis(
     else:
         shap_vals_class = shap_values
 
-    shap.summary_plot(shap_vals_class, X_sample, feature_names=TRAINING_FEATURES, show=False)
-    plt.title("SHAP Feature Impact Summary — CRITICAL Priority Class", fontsize=12, fontweight="bold", pad=15)
+    shap.summary_plot(
+        shap_vals_class, X_sample, feature_names=TRAINING_FEATURES, show=False
+    )
+    plt.title(
+        "SHAP Feature Impact Summary — CRITICAL Priority Class",
+        fontsize=12,
+        fontweight="bold",
+        pad=15,
+    )
     plt.tight_layout()
     p2 = str(RESULTS_DIR / "shap_beeswarm.png")
     plt.savefig(p2, dpi=300, bbox_inches="tight")

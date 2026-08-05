@@ -10,7 +10,9 @@ from sklearn.ensemble import RandomForestClassifier
 from .config import MODELS_DIR, PROCESSED_DIR
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def train_models(
@@ -33,10 +35,16 @@ def train_models(
         X_train = pd.read_csv(x_path)
         y_train = pd.read_csv(y_path).squeeze("columns")
 
-    logger.info("Starting model training on %d samples with %d features...", len(X_train), X_train.shape[1])
+    logger.info(
+        "Starting model training on %d samples with %d features...",
+        len(X_train),
+        X_train.shape[1],
+    )
 
     # 1. Train Random Forest Classifier (Primary Model)
-    logger.info("Training Random Forest Classifier (n_estimators=200, max_depth=15, n_jobs=-1)...")
+    logger.info(
+        "Training Random Forest Classifier (n_estimators=200, max_depth=15, n_jobs=-1)..."
+    )
     rf_model = RandomForestClassifier(
         n_estimators=200,
         max_depth=15,
@@ -69,8 +77,16 @@ def train_models(
     joblib.dump(rf_model, rf_path)
     joblib.dump(xgb_model, xgb_path)
 
-    logger.info("Saved Random Forest model to: %s (%.1f MB)", rf_path.name, rf_path.stat().st_size / 1e6)
-    logger.info("Saved XGBoost model to: %s (%.1f MB)", xgb_path.name, xgb_path.stat().st_size / 1e6)
+    logger.info(
+        "Saved Random Forest model to: %s (%.1f MB)",
+        rf_path.name,
+        rf_path.stat().st_size / 1e6,
+    )
+    logger.info(
+        "Saved XGBoost model to: %s (%.1f MB)",
+        xgb_path.name,
+        xgb_path.stat().st_size / 1e6,
+    )
 
     return rf_model, xgb_model
 
