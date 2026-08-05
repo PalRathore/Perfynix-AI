@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.pkl
+*.joblib
+venv/
+.env
+
+# Datasets (large files ignored, kept locally)
+dataset/
+AI_Model/datasets/raw/
+AI_Model/datasets/merged/*.csv
+AI_Model/datasets/processed/*.csv
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Node / Frontend
+node_modules/
+frontend/dist/
