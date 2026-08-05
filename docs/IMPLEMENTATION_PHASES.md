@@ -65,7 +65,7 @@
 |---|---|---|
 | 🔵 **Coder** | Writes code & commits | Implements each checkpoint, runs linters, makes atomic git commits |
 | 🟡 **Supervisor** | Reviews & validates | Reviews every file, runs tests, validates data shapes and output files |
-| 🔴 **CEO** | Strategic oversight | Cross-references against FINAL_CONTEXT.md, verifies flaw fixes, gates phase transitions |
+| 🔴 **CEO** | Strategic oversight | Cross-references against FINAL_CONTEXT.md, IMPLEMNTATION_PHASES.md , verifies flaw fixes, gates phase transitions |
 
 ---
 
