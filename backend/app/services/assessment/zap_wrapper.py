@@ -28,7 +28,7 @@ import subprocess
 import time
 from dataclasses import asdict, dataclass, field
 
-from zaproxy import ZAPv2
+from zapv2 import ZAPv2
 
 # ---------------------------------------------------------------------------
 # ZAP executable location (Windows)
