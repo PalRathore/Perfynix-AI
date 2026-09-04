@@ -24,8 +24,10 @@ def test_scan_invalid_url_returns_400():
 
 def test_scan_website_pipeline_success():
     """POST /api/v1/scan/website with valid URL runs pipeline and persists to DB."""
-    # Mock Lighthouse to avoid running real headless Chrome during unit test
-    with patch("backend.app.api.v1.endpoints.scan.run_lighthouse") as mock_lh:
+    # Mock Lighthouse and Gemini LLM to make integration test fast and deterministic
+    with patch("backend.app.api.v1.endpoints.scan.run_lighthouse") as mock_lh, patch(
+        "backend.app.services.llm.gemini_service.gemini_service.model", None
+    ):
         mock_lh_result = MagicMock()
         mock_lh_result.performance_score = 90.0
         mock_lh_result.lcp_ms = 1200.0
@@ -42,7 +44,7 @@ def test_scan_website_pipeline_success():
     assert "overall_trust_score" in data
     assert len(data["findings"]) >= 1
 
-    # Verify GET /api/v1/scan/{scan_id} retrieves persisted report from PostgreSQL
+    # Verify GET /api/v1/scan/{scan_id} retrieves persisted report from PostgreSQL 17
     scan_id = data["scan_id"]
     get_response = client.get(f"/api/v1/scan/{scan_id}")
     assert get_response.status_code == 200
