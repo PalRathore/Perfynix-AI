@@ -204,7 +204,7 @@ def check_ssl(hostname: str, port: int = 443, timeout: float = 10.0) -> SSLResul
             cwe_ids=["CWE-295"],
             error=f"Certificate validation failed: {exc}",
         )
-    except (socket.timeout, TimeoutError):
+    except TimeoutError:
         return SSLResult(
             is_valid=False,
             error=f"SSL connection timed out after {timeout:.0f}s.",

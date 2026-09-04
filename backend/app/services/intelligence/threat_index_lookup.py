@@ -108,7 +108,13 @@ class ThreatIndexLookup:
         divergence = round((cvss / 10.0) - epss, 4)
 
         # High-risk CWE profiles (SQLi, Code Inj, etc.) get higher impact vector defaults
-        is_high_risk_cwe = cwe_id in {"CWE-89", "CWE-78", "CWE-94", "CWE-502", "CWE-918"}
+        is_high_risk_cwe = cwe_id in {
+            "CWE-89",
+            "CWE-78",
+            "CWE-94",
+            "CWE-502",
+            "CWE-918",
+        }
 
         pub_days = float(cwe_data.get("days_since_published", DEFAULT_THREAT_METRICS["days_since_published"]))
         mod_days = float(cwe_data.get("days_since_modified", DEFAULT_THREAT_METRICS["days_since_modified"]))

@@ -5,7 +5,10 @@ Unit tests for Checkpoint 3.4 — Static Rule Engine for Non-CVE Findings.
 
 from __future__ import annotations
 
-from backend.app.services.intelligence.rule_engine import RuleEvaluationResult, evaluate_non_cve_finding
+from backend.app.services.intelligence.rule_engine import (
+    RuleEvaluationResult,
+    evaluate_non_cve_finding,
+)
 
 
 def test_missing_csp_rule():

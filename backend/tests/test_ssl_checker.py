@@ -5,7 +5,6 @@ Unit tests for ssl_checker.py — Checkpoint 2.3b
 
 from __future__ import annotations
 
-import socket
 import ssl
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
@@ -28,7 +27,10 @@ def _make_cert(days_to_expiry: int = 365, tls_version: str = "TLSv1.3") -> tuple
 class TestSSLValid:
     def test_valid_cert_returns_is_valid_true(self):
         cert, tls = _make_cert(days_to_expiry=300, tls_version="TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -41,7 +43,10 @@ class TestSSLValid:
 
     def test_cert_subject_extracted(self):
         cert, tls = _make_cert(300, "TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -53,7 +58,10 @@ class TestSSLValid:
 
     def test_issuer_extracted(self):
         cert, tls = _make_cert(300, "TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -65,7 +73,10 @@ class TestSSLValid:
 
     def test_tls_version_reported(self):
         cert, tls = _make_cert(300, "TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -77,7 +88,10 @@ class TestSSLValid:
 
     def test_days_to_expiry_positive(self):
         cert, tls = _make_cert(300, "TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -94,7 +108,10 @@ class TestSSLExpiry:
     def test_expired_cert_generates_cwe_298_critical(self):
         """Expired cert → finding with CWE-298 and risk=Critical."""
         cert, tls = _make_cert(days_to_expiry=-5, tls_version="TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -110,7 +127,10 @@ class TestSSLExpiry:
     def test_expiring_soon_generates_cwe_298_medium(self):
         """Cert expiring in 15 days → CWE-298 with risk=Medium."""
         cert, tls = _make_cert(days_to_expiry=15, tls_version="TLSv1.3")
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = tls
@@ -128,7 +148,10 @@ class TestSSLWeakTLS:
     def test_tls_1_0_generates_cwe_326(self):
         """TLS 1.0 → finding with CWE-326 (Inadequate Encryption Strength)."""
         cert, _ = _make_cert(300)
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ssock = MagicMock()
             mock_ssock.getpeercert.return_value = cert
             mock_ssock.version.return_value = "TLSv1"
@@ -145,7 +168,10 @@ class TestSSLWeakTLS:
 class TestSSLErrors:
     def test_cert_verification_error_returns_cwe_295(self):
         """SSLCertVerificationError → is_valid=False + CWE-295."""
-        with patch("ssl.create_default_context") as mock_ctx, patch("socket.create_connection") as mock_sock:
+        with (
+            patch("ssl.create_default_context") as mock_ctx,
+            patch("socket.create_connection") as mock_sock,
+        ):
             mock_ctx.return_value.wrap_socket.return_value.__enter__.side_effect = ssl.SSLCertVerificationError(
                 "certificate verify failed"
             )
@@ -167,7 +193,7 @@ class TestSSLErrors:
     def test_timeout_returns_error(self):
         """Socket timeout → is_valid=False."""
         with patch("socket.create_connection") as mock_sock:
-            mock_sock.side_effect = socket.timeout("timed out")
+            mock_sock.side_effect = TimeoutError("timed out")
             result = check_ssl("slow.example.com", timeout=1.0)
 
         assert result.is_valid is False

@@ -77,7 +77,10 @@ class TestHeaderScannerMissing:
 
         assert "Content-Security-Policy" in result.missing
         assert "CWE-693" in result.cwe_ids
-        csp_finding = next((f for f in result.findings if f["header"] == "Content-Security-Policy"), None)
+        csp_finding = next(
+            (f for f in result.findings if f["header"] == "Content-Security-Policy"),
+            None,
+        )
         assert csp_finding is not None
         assert csp_finding["cwe_id"] == "CWE-693"
         assert csp_finding["risk"] == "High"

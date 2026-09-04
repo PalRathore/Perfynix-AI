@@ -60,6 +60,17 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+def create_tables() -> None:
+    """Create all ORM tables in PostgreSQL database."""
+    from backend.app.db import models  # noqa: F401
+
+    Base.metadata.create_all(bind=engine)
+
+
+# Auto-create tables on startup
+create_tables()
+
+
 def get_db():
     """Dependency generator for FastAPI routes."""
     db = SessionLocal()

@@ -9,7 +9,10 @@ from unittest.mock import MagicMock, patch
 
 import httpx
 
-from backend.app.services.assessment.input_validator import ValidationResult, validate_url
+from backend.app.services.assessment.input_validator import (
+    ValidationResult,
+    validate_url,
+)
 
 # ---------------------------------------------------------------------------
 # Tier 1 — Syntax validation tests

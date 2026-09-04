@@ -134,7 +134,7 @@ class GeminiLLMService:
         if self.api_key:
             try:
                 genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel("gemini-2.5-flash")
+                self.model = genai.GenerativeModel("models/gemini-3.6-flash")
                 logger.info("Initialized Google Gemini LLM Service")
             except Exception as exc:  # noqa: BLE001
                 logger.warning(f"Failed to initialize Gemini API client: {exc}")

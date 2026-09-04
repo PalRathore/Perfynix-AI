@@ -6,7 +6,10 @@ Unit tests for Checkpoint 3.2 — CWE Mapper & Threat Index Lookup.
 from __future__ import annotations
 
 from backend.app.services.intelligence.cwe_mapper import map_finding_to_cwe
-from backend.app.services.intelligence.threat_index_lookup import ThreatIntelMetrics, threat_lookup
+from backend.app.services.intelligence.threat_index_lookup import (
+    ThreatIntelMetrics,
+    threat_lookup,
+)
 
 
 def test_map_finding_with_provided_cwe():

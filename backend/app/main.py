@@ -15,11 +15,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Fix Windows Unicode output if executed directly
+from backend.app.api.v1.endpoints.scan import router as scan_router
+from backend.app.core.config import settings
+
+# Fix Windows Unicode output
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
-
-from backend.app.core.config import settings  # noqa: E402
 
 
 @asynccontextmanager
@@ -48,6 +49,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(scan_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/health", tags=["Health"])

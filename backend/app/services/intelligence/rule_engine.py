@@ -81,7 +81,8 @@ def evaluate_non_cve_finding(finding: dict) -> RuleEvaluationResult:
             rule_category="ssl",
             explanation=finding.get("description", "SSL/TLS configuration vulnerability."),
             recommended_action=finding.get(
-                "remediation", "Update SSL/TLS certificate and server protocol configuration."
+                "remediation",
+                "Update SSL/TLS certificate and server protocol configuration.",
             ),
         )
 
@@ -93,9 +94,7 @@ def evaluate_non_cve_finding(finding: dict) -> RuleEvaluationResult:
         # LCP > 4000ms is Poor (HIGH priority performance issue)
         if kpi == "lcp_ms" and value > 4000:
             code, label = 2, "HIGH"
-        elif kpi == "lcp_ms" and value > 2500:
-            code, label = 1, "MEDIUM"
-        elif kpi == "cls_score" and value > 0.25:
+        elif kpi == "lcp_ms" and value > 2500 or kpi == "cls_score" and value > 0.25:
             code, label = 1, "MEDIUM"
         else:
             code, label = 0, "LOW"

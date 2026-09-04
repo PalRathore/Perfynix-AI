@@ -9,9 +9,6 @@ structured JSON report.
 
 Usage:
     venv\\Scripts\\python backend\\verify_phase2.py
-
-Expected output: JSON with 4 top-level keys:
-    validation, lighthouse, headers, ssl
 """
 
 from __future__ import annotations
@@ -37,9 +34,9 @@ TARGET_URL = "https://example.com"
 
 
 def _section(title: str) -> None:
-    print(f"\n{'=' * 60}", flush=True)
-    print(f"  {title}", flush=True)
-    print("=" * 60, flush=True)
+    print(f"\n{'=' * 60}")
+    print(f"  {title}")
+    print("=" * 60)
 
 
 def main() -> None:

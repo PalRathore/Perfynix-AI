@@ -124,7 +124,10 @@ class ZAPScanner:
 
         self.zap = ZAPv2(
             apikey=self.api_key,
-            proxies={"http": f"http://localhost:{self.zap_port}", "https": f"http://localhost:{self.zap_port}"},
+            proxies={
+                "http": f"http://localhost:{self.zap_port}",
+                "https": f"http://localhost:{self.zap_port}",
+            },
         )
 
         # Poll until ZAP API responds
