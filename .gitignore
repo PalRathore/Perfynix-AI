@@ -28,4 +28,42 @@ Thumbs.db
 
 # Node / Frontend
 node_modules/
+frontend/node_modules/
 frontend/dist/
+
+# Scratch & Temporary Presentation Assets
+scratch/
+content_ppt2/
+content_ppt2.zip
+frontend.zip
+scratch_*.txt
+*.tmp
+*.html
+requirements_backup.txt
+run_multi_target_audit.py
+update_scan_endpoint.py
+
+# Papers, Reports, Guidelines, Documentation & Plans (keep repo focused on website & code)
+Final research papers/
+indicon/
+report/
+docs/
+*.docx
+*.pdf
+
+# Extra exploratory evaluation plots (keep main repo focused)
+AI_Model/results/accuracy_vs_latency_fig4.png
+AI_Model/results/combined_precision_recall_f1_fig4.png
+AI_Model/results/grouped_metrics_fig4.png
+AI_Model/results/label_distribution_fig4.png
+AI_Model/results/lightgbm_per_class_metrics_fig4.png
+AI_Model/results/option*.png
+AI_Model/results/per_class_f1_comparison.png
+AI_Model/results/per_label_model_comparison_fig4.png
+AI_Model/results/pr_curves_comparative_all.png
+AI_Model/results/pr_curves_lightgbm.png
+AI_Model/results/radar_chart_comparison.png
+AI_Model/results/radar_chart_fig4.png
+AI_Model/results/roc_comparison_critical.png
+AI_Model/results/roc_curves_comparative.png
+AI_Model/results/roc_zoomed_inset.png

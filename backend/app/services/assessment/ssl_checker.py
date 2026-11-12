@@ -95,7 +95,12 @@ def check_ssl(hostname: str, port: int = 443, timeout: float = 10.0) -> SSLResul
     cwe_ids: list[str] = []
 
     try:
-        ctx = ssl.create_default_context()
+        try:
+            import certifi
+
+            ctx = ssl.create_default_context(cafile=certifi.where())
+        except Exception:
+            ctx = ssl.create_default_context()
         with socket.create_connection((hostname, port), timeout=timeout) as sock:
             with ctx.wrap_socket(sock, server_hostname=hostname) as ssock:
                 cert = ssock.getpeercert()

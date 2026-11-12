@@ -73,15 +73,29 @@ def scan_website(request: WebsiteScanRequest, db: Session = Depends(get_db)):  #
     db.commit()
 
     # Step 2: Assessment Layer Scans
-    header_res = scan_headers(raw_url)
+    header_res = scan_headers(raw_url, timeout=4.0)
     hostname = raw_url.replace("https://", "").replace("http://", "").split("/")[0]
-    ssl_res = check_ssl(hostname) if val_res.uses_https else None
-    lh_res = run_lighthouse(raw_url)
+    ssl_res = check_ssl(hostname, timeout=4.0) if val_res.uses_https else None
+    lh_res = run_lighthouse(raw_url, timeout=5)
 
-    # Calculate Overall Digital Trust Score (0-100)
+    # Calculate Overall Digital Trust Score (0-100) combining Headers, SSL/TLS, and Performance
     perf_score = (lh_res.performance_score or 50.0) if lh_res else 50.0
     hdr_score = header_res.score if header_res else 50
-    trust_score = round(0.5 * hdr_score + 0.5 * perf_score)
+
+    if val_res.uses_https and ssl_res and ssl_res.is_valid:
+        if ssl_res.days_to_expiry is not None and ssl_res.days_to_expiry <= 30:
+            ssl_score = 75
+        elif ssl_res.tls_version in ("TLSv1.3", "TLSv1.2"):
+            ssl_score = 100
+        else:
+            ssl_score = 60
+    elif val_res.uses_https:
+        ssl_score = 30  # Invalid certificate
+    else:
+        ssl_score = 15  # Plain HTTP
+
+    # Calibrated Trust Score: 40% Security Headers + 35% Transport Security + 25% Performance
+    trust_score = round(0.40 * hdr_score + 0.35 * ssl_score + 0.25 * perf_score)
 
     # Step 3: Intelligence & Remediation Processing
     findings_to_db = []

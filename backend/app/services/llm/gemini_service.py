@@ -127,6 +127,8 @@ class GeminiLLMService:
     def __init__(self) -> None:
         self.api_key = settings.GEMINI_API_KEY
         self.model = None
+        self._circuit_open = False
+        self._circuit_reset_time = 0.0
         self._init_client()
 
     def _init_client(self) -> None:
@@ -158,8 +160,14 @@ class GeminiLLMService:
         Returns:
             LLMRemediationResult populated by Gemini API or pre-written template.
         """
-        # Attempt Gemini API generation if client is active
-        if self.model is not None:
+        # Attempt Gemini API generation if client is active and circuit breaker is closed
+        import time
+
+        now = time.time()
+        if self._circuit_open and (now > self._circuit_reset_time):
+            self._circuit_open = False
+
+        if self.model is not None and not self._circuit_open:
             try:
                 prompt = (
                     f"You are a cybersecurity expert. Generate a concise remediation guide for:\n"
@@ -173,7 +181,7 @@ class GeminiLLMService:
                     f"3. Step-by-Step Remediation\n"
                     f"4. Code Example"
                 )
-                response = self.model.generate_content(prompt)
+                response = self.model.generate_content(prompt, request_options={"timeout": 1.5})
                 if response and response.text:
                     return LLMRemediationResult(
                         cwe_id=cwe_id,
@@ -186,7 +194,9 @@ class GeminiLLMService:
                         source="gemini-llm",
                     )
             except Exception as exc:  # noqa: BLE001
-                logger.warning(f"Gemini API call failed: {exc}. Falling back to template engine.")
+                logger.warning(f"Gemini API call failed: {exc}. Engaging circuit breaker fallback.")
+                self._circuit_open = True
+                self._circuit_reset_time = now + 60.0
 
         # Fallback Engine Execution
         template = CWE_FALLBACK_TEMPLATES.get(cwe_id, GENERIC_FALLBACK_TEMPLATE)

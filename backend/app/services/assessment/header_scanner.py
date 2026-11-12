@@ -118,11 +118,19 @@ def scan_headers(url: str, timeout: float = 15.0) -> HeaderScanResult:
     Returns:
         HeaderScanResult with present/missing headers, CWE mappings, and a 0-100 score.
     """
+    default_headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
     try:
         with httpx.Client(
             follow_redirects=True,
             timeout=timeout,
             verify=False,
+            headers=default_headers,
         ) as client:
             resp = client.get(url)
             headers = {k.title(): v for k, v in resp.headers.items()}

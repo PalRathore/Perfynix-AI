@@ -90,17 +90,28 @@ def validate_url(url: str, timeout: float = 10.0) -> ValidationResult:
     # ------------------------------------------------------------------
     # Tier 2 — Reachability check
     # ------------------------------------------------------------------
+    default_headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
     try:
         with httpx.Client(
             follow_redirects=True,
             timeout=timeout,
             verify=False,  # allow self-signed certs at validation stage
+            headers=default_headers,
         ) as client:
-            resp = client.head(url)
+            try:
+                resp = client.head(url)
+            except Exception:
+                resp = client.get(url, headers={"Range": "bytes=0-0"})
             reachable = resp.status_code < 500
 
             # Some servers reject HEAD — fall back to GET with no body read
-            if resp.status_code == 405:
+            if resp.status_code in (403, 405):
                 resp = client.get(url, headers={"Range": "bytes=0-0"})
                 reachable = resp.status_code < 500
 
