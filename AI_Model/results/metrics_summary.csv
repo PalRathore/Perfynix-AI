@@ -1,0 +1,7 @@
+model,accuracy,precision,recall,f1_score
+Naive Bayes,0.8262,0.8681,0.7196,0.6854
+Logistic Regression,0.733,0.6133,0.4685,0.4249
+Decision Tree,0.9976,0.9974,0.9974,0.9974
+Random Forest,0.9974,0.9968,0.9976,0.9972
+XGBoost,0.9988,0.9987,0.9986,0.9986
+LightGBM,0.9986,0.9987,0.9983,0.9985
